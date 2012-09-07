@@ -44,14 +44,16 @@ function imodify_popup_menu() {
   );
   $items['imodify_popup/cssClass'] = array(
   'title' => 'Css Class Popup',
-  'page callback' => 'imodify_popup_heading',
+  'page callback' => 'drupal_get_form',
+  'page arguments' => array('imodify_popup_menu_form'),
   'access callback' => TRUE,
   'type' => MENU_LOCAL_TASK,
   'weight' => 1,
   );
   $items['imodify_popup/cssId'] = array(
   'title' => 'Css Id Popup',
-  'page callback' => 'imodify_popup_heading',
+  'page callback' => 'drupal_get_form',
+  'page arguments' => array('imodify_popup_menu_form'),
   'access callback' => TRUE,
   'type' => MENU_LOCAL_TASK,
   'weight' => 2,
@@ -70,19 +72,85 @@ function imodify_popup_menu() {
   'type' => MENU_CALLBACK,
   'file' => 'imodify_popup.ajax.inc',
   );
+  $items['imodify_popup/heading/all/ajax'] = array(
+  'title' => 'Imodify all heading popup ajax',
+  'page callback' => 'imodify_popup_heading_all_ajax',
+  'access arguments' => array('access content'),
+  'type' => MENU_CALLBACK,
+  'file' => 'imodify_popup.ajax.inc',
+  );
+  $items['imodify_popup/cssClass/all/ajax'] = array(
+  'title' => 'Imodify all cssClass popup ajax',
+  'page callback' => 'imodify_popup_cssClass_all_ajax',
+  'access arguments' => array('access content'),
+  'type' => MENU_CALLBACK,
+  'file' => 'imodify_popup.ajax.inc',
+  );
+  $items['imodify_popup/cssId/all/ajax'] = array(
+  'title' => 'Imodify all cssId popup ajax',
+  'page callback' => 'imodify_popup_cssId_all_ajax',
+  'access arguments' => array('access content'),
+  'type' => MENU_CALLBACK,
+  'file' => 'imodify_popup.ajax.inc',
+  );
   return $items;
 }
 
 function imodify_popup_menu_form() {
 
   $form['#tree'] = TRUE;
-  
-  $form['menu_popup']['title'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Title'),
-    '#size' => 60,
-    '#maxlength' => 128,
-  );
+  if(arg(1) == 'cssClass') {
+    $form['menu_popup']['title'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Css class name'),
+      '#size' => 60,
+      '#maxlength' => 128,
+    );
+    $form['menu_popup']['type'] = array(
+      '#type' => 'hidden',
+      '#value' => 'cssClass',
+      '#attributes' => array('id' => 'popup_type'),
+    );
+  }
+  elseif(arg(1) == 'cssId') {
+    $form['menu_popup']['title'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Css id'),
+      '#size' => 60,
+      '#maxlength' => 128,
+    );
+    $form['menu_popup']['type'] = array(
+      '#type' => 'hidden',
+      '#value' => 'cssId',
+      '#attributes' => array('id' => 'popup_type'),
+    );
+  }
+  elseif(arg(1) == 'heading') {
+    $form['menu_popup']['title'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Heading Title'),
+      '#size' => 60,
+      '#maxlength' => 128,
+    );
+    $form['menu_popup']['type'] = array(
+      '#type' => 'hidden',
+      '#value' => 'heading',
+      '#attributes' => array('id' => 'popup_type'),
+    );
+  }
+  else {
+    $form['menu_popup']['title'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Menu Title'),
+      '#size' => 60,
+      '#maxlength' => 128,
+    );
+    $form['menu_popup']['type'] = array(
+      '#type' => 'hidden',
+      '#value' => 'menu',
+      '#attributes' => array('id' => 'popup_type'),
+    );
+  }
   $form['menu_popup']['message'] = array(
     '#type' => 'textarea',
     '#title' => t('Message'),
@@ -90,6 +158,14 @@ function imodify_popup_menu_form() {
   $form['menu_popup']['counter'] = array(
     '#type' => 'textfield',
     '#title' => t('Counter'),
+  );
+  $form['menu_popup']['prev'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Pervious'),
+  );
+  $form['menu_popup']['next'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Next'),
   );
   $form['menu_popup']['submit'] = array(
     '#type' => 'submit',
@@ -108,6 +184,12 @@ function imodify_popup_menu_form_submit($form, &$form_state) {
   if (arg(1) == 'heading') {
     $popup_type = 'heading-popup';
   }
+  elseif(arg(1) == 'cssClass') {
+    $popup_type = 'cssClass-popup';
+  }
+  elseif(arg(1) == 'cssId') {
+    $popup_type = 'cssId-popup';
+  }
   else {
     $popup_type = 'menu-popup';
   }
@@ -117,6 +199,8 @@ function imodify_popup_menu_form_submit($form, &$form_state) {
       'popup_title' => $form_state['values']['menu_popup']['title'],
       'popup_message' => $form_state['values']['menu_popup']['message'],
       'popup_counter' => $form_state['values']['menu_popup']['counter'],
+      'popup_prev' => $form_state['values']['menu_popup']['prev'],
+      'popup_next' => $form_state['values']['menu_popup']['next'],
       ))
     ->execute();
   drupal_set_message(t('Your configuration save.'));
