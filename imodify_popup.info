@@ -1,0 +1,7 @@
+; $Id$
+name = Imodify
+description = Allows admin to add popup in site
+package = Imodify
+core = 7.x
+files[] = imodify_popup.module
+

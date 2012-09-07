@@ -1,0 +1,129 @@
+<?php
+
+/**
+ * @file
+ * Installation file for the Image tag module.
+ */
+
+
+/**
+ * Implement hook_init().
+ */
+
+function imodify_popup_init() {
+  drupal_add_js(drupal_get_path('module', 'imodify_popup') . '/js/imodify_popup.js');
+  drupal_add_js(drupal_get_path('module', 'imodify_popup') . '/js/spinners.min.js');
+  drupal_add_js(drupal_get_path('module', 'imodify_popup') . '/js/tipped.js');
+  drupal_add_css(drupal_get_path('module', 'imodify_popup') . '/css/tipped.css');
+}
+
+/**
+ * Implement hook_menu().
+ */
+
+function imodify_popup_menu() {
+  $items['imodify_popup'] = array(
+  'title' => 'imodify_popup',
+  'page callback' => 'drupal_get_form',
+  'page arguments' => array('imodify_popup_menu_form'),
+  'access callback' => TRUE,
+  );
+  $items['imodify_popup/menu'] = array(
+  'title' => 'Menu Popup',
+  'access callback' => TRUE,
+  'type' => MENU_DEFAULT_LOCAL_TASK,
+  'weight' => -10,
+  );
+  $items['imodify_popup/heading'] = array(
+  'title' => 'Heading Popup',
+  'page callback' => 'drupal_get_form',
+  'page arguments' => array('imodify_popup_menu_form'),
+  'access callback' => TRUE,
+  'type' => MENU_LOCAL_TASK,
+  'weight' => 0,
+  );
+  $items['imodify_popup/cssClass'] = array(
+  'title' => 'Css Class Popup',
+  'page callback' => 'imodify_popup_heading',
+  'access callback' => TRUE,
+  'type' => MENU_LOCAL_TASK,
+  'weight' => 1,
+  );
+  $items['imodify_popup/cssId'] = array(
+  'title' => 'Css Id Popup',
+  'page callback' => 'imodify_popup_heading',
+  'access callback' => TRUE,
+  'type' => MENU_LOCAL_TASK,
+  'weight' => 2,
+  );
+  $items['imodify_popup/menu/all'] = array(
+  'title' => 'Imodify all menu popup',
+  'page callback' => 'imodify_popup_menu_all',
+  'access arguments' => array('access content'),
+  'type' => MENU_CALLBACK,
+  'file' => 'imodify_popup.ajax.inc',
+  );
+  $items['imodify_popup/menu/all/ajax'] = array(
+  'title' => 'Imodify all menu popup ajax',
+  'page callback' => 'imodify_popup_menu_all_ajax',
+  'access arguments' => array('access content'),
+  'type' => MENU_CALLBACK,
+  'file' => 'imodify_popup.ajax.inc',
+  );
+  return $items;
+}
+
+function imodify_popup_menu_form() {
+
+  $form['#tree'] = TRUE;
+  
+  $form['menu_popup']['title'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Title'),
+    '#size' => 60,
+    '#maxlength' => 128,
+  );
+  $form['menu_popup']['message'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Message'),
+  );
+  $form['menu_popup']['counter'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Counter'),
+  );
+  $form['menu_popup']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Submit')
+  );
+  $form['some_text'] = array(
+  '#type' => 'item',
+  '#markup' => '<div id="popup-wrapper"></div>'
+  );
+
+  return $form; 
+}
+
+
+function imodify_popup_menu_form_submit($form, &$form_state) {
+  if (arg(1) == 'heading') {
+    $popup_type = 'heading-popup';
+  }
+  else {
+    $popup_type = 'menu-popup';
+  }
+  $nid = db_insert('imodify_popup')
+    ->fields(array(
+      'popup_type' => $popup_type,
+      'popup_title' => $form_state['values']['menu_popup']['title'],
+      'popup_message' => $form_state['values']['menu_popup']['message'],
+      'popup_counter' => $form_state['values']['menu_popup']['counter'],
+      ))
+    ->execute();
+  drupal_set_message(t('Your configuration save.'));
+}
+
+
+
+function imodify_popup_heading() {
+  return "Heading";
+}
